@@ -1,11 +1,14 @@
-import Main.scheduler
-import akka.actor.{ActorSystem, Scheduler}
+import akka.actor.ActorSystem
 
 import scala.concurrent._
 import scala.concurrent.duration._
 import scala.util.Try
 
-class FutureSyntax(scheduler: Scheduler) {
+object Main extends App {
+  val system = ActorSystem("name")
+  val scheduler = system.scheduler
+  implicit val dispatcher = system.dispatcher
+
   def sleep(dur: FiniteDuration)(implicit ec: ExecutionContext): Future[Unit] = {
     val promise = Promise[Unit]()
 
@@ -15,15 +18,6 @@ class FutureSyntax(scheduler: Scheduler) {
 
     promise.future
   }
-}
-
-object Main extends App {
-  val system = ActorSystem("name")
-  val scheduler = system.scheduler
-  implicit val dispatcher = system.dispatcher
-  val syntax = new FutureSyntax(scheduler)
-
-  import syntax._
 
   def job(number: Int): Future[Unit] = {
     def now: Long =
